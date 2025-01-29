@@ -5,8 +5,7 @@ import dev.danielsantiago.idempotency.model.Publication
 import dev.danielsantiago.idempotency.repository.PublicationRepository
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatus.CREATED
-import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.*
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -45,7 +44,7 @@ class PublicationController(
             )
             return ResponseEntity.status(CREATED).body(publishedPublication)
         } else {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build()
+            return ResponseEntity.status(UNPROCESSABLE_ENTITY).build()
         }
     }
 

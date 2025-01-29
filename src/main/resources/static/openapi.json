@@ -1,0 +1,263 @@
+{
+    "openapi":"3.0.3",
+    "info": {
+      "title":"Idempotency example",
+      "version":"1.0"
+    },
+    "servers": [
+      {
+        "description": "local",
+        "url":"http://localhost:8080"
+      }
+    ],
+    "components": {
+      "schemas": {
+        "PublicationResponseSchema": {
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "title": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            },
+            "creationDate": {
+              "type": "string"
+            }
+          }
+        },
+        "CreatePublicationRequestSchema": {
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              }
+            },
+            "example": {
+              "title": "Publication Title",
+              "content": "Publication content"
+            }
+        },
+        "CreateUserRequestSchema": {
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "age": {
+              "type": "integer"
+            },
+            "cpf": {
+              "type": "string"
+            }
+          },
+          "example": {
+            "name": "user",
+            "age": 18,
+            "cpf": "000.000.000-00"
+          }
+        },
+        "UserResponseSchema": {
+          "allOf": [
+            {
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            {
+              "$ref": "#/components/schemas/CreateUserRequestSchema"
+            }
+          ],
+          "example": {
+            "id": 1,
+            "name": "user",
+            "age": 18,
+            "cpf": "000.000.000-00"
+          }
+        }
+      }
+    },
+    "paths": {
+      "/publication": {
+        "get": {
+          "description": "Get publications list",
+          "tags": ["Publication"],
+          "responses": {
+            "200": {
+              "description": "Get publications list with success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PublicationResponseSchema"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+        "tags": ["Publication"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePublicationRequestSchema"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Publicação criada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicationResponseSchema"
+                }
+              }
+            }
+          }
+        }
+        }
+      },
+      "/publication/{id}": {
+        "parameters": [
+            {
+              "name": "id",
+              "description": "Publication Id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+        "put": {
+          "tags": ["Publication"],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePublicationRequestSchema"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Publiction altered with success.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PublicationResponseSchema"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Publication not found"
+            }
+          }
+        },
+        "delete": {
+          "description": "Deletes publication",
+          "tags": ["Publication"],
+          "responses": {
+            "204": {
+              "description": "Publication deleted with success."
+            },
+            "404": {
+              "description": "Publication not found"
+            }
+          }
+        }
+      },
+      "/publication/idempotent": {
+        "post": {
+          "description": "Idempotent version of create publication operation. It would not allow duplicated publications.",
+          "tags": ["Publication"],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePublicationRequestSchema"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Publication created with success",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PublicationResponseSchema"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Failed to create publication. Publication can't be duplicated"
+            }
+          }
+        }
+      },
+      "/user": {
+        "get": {
+          "tags": ["User"],
+          "responses": {
+            "200": {
+              "description": "User list obtained with success.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/UserResponseSchema"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": ["User"],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateUserRequestSchema"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "User created with success.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserResponseSchema"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Failed to create user. User can't be duplicated"
+            }
+          }
+        }
+      }
+    }
+  }
